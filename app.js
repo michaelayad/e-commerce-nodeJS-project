@@ -5,6 +5,7 @@ const userRoute = require("./routes/user.route");
 const productRoute = require("./routes/product.route");
 const categoryRoute = require("./routes/category.route");
 const subCategoryRoute = require("./routes/subCategory.route");
+const cartRoute = require("./routes/cart.route");
 
 mongoose.connect(process.env.DBLINK);
 
@@ -16,6 +17,7 @@ var app = express();
 app.use(express.json());
 app.use("/user", userRoute);
 app.use("/products", productRoute);
+app.use("/cart", cartRoute);
 app.use("/category", categoryRoute);
 app.use("/subCategory", subCategoryRoute);
 

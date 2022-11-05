@@ -5,18 +5,18 @@ var userSchema = mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "please tell us your name"],
+      required: true,
     },
     email: {
       type: String,
-      required: [true, "please enter your email"],
+      required: true,
       unique: true,
       trim: true,
       lowercase: true,
     },
     password: {
       type: String,
-      required: [true, "enter your password"],
+      required: true,
     },
     role: {
       type: String,

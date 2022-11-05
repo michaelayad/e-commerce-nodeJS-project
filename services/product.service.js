@@ -168,21 +168,17 @@ const updateProduct = async (productId, product, userId) => {
       statusCode: 400,
       message: "this user cannot delete this product",
     };
-  if (!Array.isArray(product.subImages)) {
+  if (product.subImages && !Array.isArray(product.subImages)) {
     return {
       type: "Error",
       message: "subimages must be an array",
       statusCode: 400,
     };
   }
-  if (product.sale || product.priceAfterSale) {
-    product.priceAfterSale = product.priceAfterSale
-      ? product.priceAfterSale
-      : product.price - product.price * (product.sale / 100);
-  }
-  if (quantity <= 0) outOfStock = true;
-  else outOfStock = false;
-  const updatingProduct = await productModel
+
+  if (product.quantity <= 0) product.outOfStock = true;
+  else product.outOfStock = false;
+  var updatingProduct = await productModel
     .findByIdAndUpdate(productId, product)
     .populate("category")
     .populate("subCategory")
@@ -195,6 +191,11 @@ const updateProduct = async (productId, product, userId) => {
           message: err,
         };
     });
+  updatingProduct = await productModel
+    .findById(productId)
+    .populate("category")
+    .populate("subCategory")
+    .populate("seller");
   return {
     type: "Success",
     statusCode: 200,
