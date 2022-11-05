@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const productModel = require("../models/product.model");
 
 const getAllProducts = async function () {
@@ -6,7 +7,7 @@ const getAllProducts = async function () {
       .find()
       .populate("category")
       .populate("subCategory")
-      .populate("seller", { name: 1 });
+      .populate("seller");
     return {
       type: "Success",
       message: "successful getAllProducts",
@@ -18,6 +19,27 @@ const getAllProducts = async function () {
       type: "Error",
       statusCode: 400,
       message: "error getting all products",
+    };
+  }
+};
+const getProductById = async (productId) => {
+  try {
+    var product = await productModel
+      .findById(productId)
+      .populate("category")
+      .populate("subCategory")
+      .populate("seller");
+    return {
+      type: "Success",
+      message: "successful get Product",
+      statusCode: 201,
+      product,
+    };
+  } catch {
+    return {
+      type: "Error",
+      statusCode: 400,
+      message: "error getting this product",
     };
   }
 };
@@ -137,4 +159,54 @@ const deleteProduct = async (productId, userId, role) => {
   };
 };
 
-module.exports = { getAllProducts, addNewProduct, deleteProduct };
+const updateProduct = async (productId, product, userId) => {
+  const user = await productModel.findById(productId, { seller: 1 });
+
+  if (user.seller != userId)
+    return {
+      type: "Error",
+      statusCode: 400,
+      message: "this user cannot delete this product",
+    };
+  if (!Array.isArray(product.subImages)) {
+    return {
+      type: "Error",
+      message: "subimages must be an array",
+      statusCode: 400,
+    };
+  }
+  if (product.sale || product.priceAfterSale) {
+    product.priceAfterSale = product.priceAfterSale
+      ? product.priceAfterSale
+      : product.price - product.price * (product.sale / 100);
+  }
+  if (quantity <= 0) outOfStock = true;
+  else outOfStock = false;
+  const updatingProduct = await productModel
+    .findByIdAndUpdate(productId, product)
+    .populate("category")
+    .populate("subCategory")
+    .populate("seller")
+    .then((err) => {
+      if (err)
+        return {
+          type: "Error",
+          statusCode: 400,
+          message: err,
+        };
+    });
+  return {
+    type: "Success",
+    statusCode: 200,
+    message: "seccessfully updating product",
+    product: updatingProduct,
+  };
+};
+
+module.exports = {
+  getAllProducts,
+  getProductById,
+  addNewProduct,
+  deleteProduct,
+  updateProduct,
+};

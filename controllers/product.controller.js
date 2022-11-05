@@ -18,6 +18,23 @@ const getAllProducts = async (req, res, next) => {
     totalProducts,
   });
 };
+const getProductById = async (req, res, next) => {
+  const { type, message, statusCode, product } =
+    await productService.getProductById(req.params.productId);
+  if (type === "Error") {
+    return res.status(statusCode).json({
+      type,
+      message,
+    });
+  }
+
+  //  If everything is OK, send data
+  return res.status(statusCode).json({
+    type,
+    message,
+    product,
+  });
+};
 const addNewProduct = async (req, res, next) => {
   const seller = req.userId;
   const { type, message, statusCode, product } =
@@ -57,4 +74,32 @@ const deleteProduct = async (req, res, next) => {
     message,
   });
 };
-module.exports = { getAllProducts, addNewProduct, deleteProduct };
+const updateProduct = async (req, res, next) => {
+  const { type, message, statusCode, product } =
+    await productService.updateProduct(
+      req.params.productId,
+      req.body,
+      req.userId
+    );
+  //  Check if something went wrong
+  if (type === "Error") {
+    return res.status(statusCode).json({
+      type,
+      message,
+    });
+  }
+
+  //  If everything is OK, send data
+  return res.status(statusCode).json({
+    type,
+    message,
+    product,
+  });
+};
+module.exports = {
+  getAllProducts,
+  getProductById,
+  addNewProduct,
+  deleteProduct,
+  updateProduct,
+};
